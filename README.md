@@ -1,2 +1,0 @@
-# deeplearning
-ディープラーニング練習

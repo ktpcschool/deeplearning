@@ -200,6 +200,8 @@ def main():
 
                 process1.join()
 
+                time.sleep(5)
+                
             # 画面を表示
             cv2.imshow("frame", frame)
 

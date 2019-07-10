@@ -98,13 +98,14 @@ class NCS(object):
         probability_indexes = output.argsort()[::-1][:self.max_detection + 1]
         print('\n------- predictions --------')
 
-        label = None
+        label_list = []
         for i in probability_indexes:
             if output[i] > self.threshold:
                 label = labels[i].split()[1]
                 print('probability:' + str(output[i]) + ' is ' + label)
+                label_list.append(label)
 
-        return fifo_in, fifo_out, label
+        return fifo_in, fifo_out, label_list
 
     # 後片付け
     def clean_up(self, fifo_in, fifo_out, device, graph):
@@ -152,9 +153,11 @@ def main():
                 break
 
             img = ncs.load_image(frame)
-            fifo_in, fifo_out, label = \
+            fifo_in, fifo_out, label_list = \
                 ncs.infer_image(fifo_in, fifo_out, graph, img, labels)
-            if label in target_name_list:
+
+            # 共通する要素があれば音を鳴らす
+            if set(label_list) & set(target_name_list):
                 sound = Sound(mp3_files)
                 sound.play_sound()
 

@@ -105,7 +105,7 @@ class NCS(object):
                 print('probability:' + str(output[i]) + ' is ' + label)
                 label_list.append(label)
 
-        return fifo_in, fifo_out, label_list
+        return label_list
 
     # 後片付け
     def clean_up(self, fifo_in, fifo_out, device, graph):
@@ -153,8 +153,7 @@ def main():
                 break
 
             img = ncs.load_image(frame)
-            fifo_in, fifo_out, label_list = \
-                ncs.infer_image(fifo_in, fifo_out, graph, img, labels)
+            label_list = ncs.infer_image(fifo_in, fifo_out, graph, img, labels)
 
             # 共通する要素があれば音を鳴らす
             if set(label_list) & set(target_name_list):

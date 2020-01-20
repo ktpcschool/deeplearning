@@ -401,6 +401,10 @@ def main():
             now_str = now.strftime('%m%d%H%M%S')
             cv2.putText(display_image, now_str, (display_size[0] // 2 + 50, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
+            # 指定の時間が来たら終了
+            if now == datetime(now.year, now.month, now.day, 19, 39):
+                break
+
             # 表示する
             cv2.imshow('window', display_image)
 

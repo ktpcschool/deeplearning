@@ -11,14 +11,18 @@ Copyright(c) 2019 Tatsuro Watanabe
 License: MIT
 https://github.com/ktpcschool/deeplearning
 """
-
-
 import cv2
-from datetime import datetime
-from mvnc import mvncapi as mvnc
+import glob
 import numpy as np
+import os
+import schedule
 import sys
 import traceback
+
+from datetime import datetime
+from mvnc import mvncapi as mvnc
+from pydrive.auth import GoogleAuth
+from pydrive.drive import GoogleDrive
 
 
 # Neural Compute Stickのクラス
@@ -345,6 +349,48 @@ class NCS(object):
         device.close()
 
 
+def make_video_from_image(path):
+    """
+    画像ファイルから動画を作成
+    :param path: 画像ファイルがあるディレクトリ
+    """
+    images = []
+    size = None
+
+    image_path = path + '/*.jpg'
+    for filename in sorted(glob.glob(image_path)):
+        img = cv2.imread(filename)
+        height, width, layers = img.shape
+        size = (width, height)
+        images.append(img)
+
+    video_name = 'out.mp4'
+    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+    video = cv2.VideoWriter(video_name, fourcc, 20.0, size)
+
+    for image in images:
+        video.write(image)
+
+    video.release()
+
+
+def upload_to_google_drive(video_file):
+    """
+    googleドライブに動画ファイルをアップロードする
+    :param video_file: アップロードする動画ファイル
+    """
+    gauth = GoogleAuth()
+    gauth.CommandLineAuth()
+    drive = GoogleDrive(gauth)
+    folder_id = os.environ['FOLDER_ID'] # フォルダーIDは環境変数から取得
+    f = drive.CreateFile({'title': video_file,
+                          'mimeType': 'video/mp4',
+                          'parents': [{'kind': 'drive#fileLink',
+                                       'id': folder_id}]})
+    f.SetContentFile(video_file)
+    f.Upload()
+
+
 def main():
     try:
         graph_path = 'tiny_yolo_graph'
@@ -368,12 +414,12 @@ def main():
 
         cap = cv2.VideoCapture(0)
 
-        # 動画ファイル保存用の設定
-        fps = int(cap.get(cv2.CAP_PROP_FPS))  # カメラのFPSを取得
-        fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')  # 動画保存時のfourcc設定（mp4用）
-        now = datetime.now()
-        filename = now.strftime('%y%m%d%H%M') + ".mp4"
-        video = cv2.VideoWriter(filename, fourcc, fps, display_size)  # 動画の仕様（ファイル名、fourcc, FPS, サイズ）
+        path = 'video_image'  # 画像ファイルのパス
+        schedule.every().day.at("22:00").do(make_video_from_image, path=path)
+
+        video_file = 'out.mp4'
+        schedule.every().day.at("22:01").do(upload_to_google_drive,
+                                            video_file=video_file)
 
         while True:
             ok, frame = cap.read()
@@ -401,17 +447,18 @@ def main():
             now_str = now.strftime('%m%d%H%M%S')
             cv2.putText(display_image, now_str, (display_size[0] // 2 + 50, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
-            # 指定の時間が来たら終了
-            if now == datetime(now.year, now.month, now.day, 19, 39):
-                break
-
             # 表示する
             cv2.imshow('window', display_image)
 
-            # 'person'が見つかれば動画に書き込む
+            # personまたはcatが見つかれば画像に書き込む
             for filtered_obj in filtered_objs:
-                if 'person' in filtered_obj[0]:
-                    video.write(display_image)
+                if 'person' or 'cat' in filtered_obj[0]:
+                    # 画像ファイルに書き込む
+                    image_file = now_str + ".jpg"
+                    f = os.path.join(path, image_file)
+                    cv2.imwrite(f, frame)
+
+            schedule.run_pending()
 
     except Exception as ex:
         # エラーの情報をsysモジュールから取得
@@ -430,7 +477,6 @@ def main():
     finally:
         # カメラの終了処理
         cap.release()
-        video.release()
         cv2.destroyAllWindows()
 
         # 終了処理

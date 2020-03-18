@@ -16,6 +16,7 @@ import glob
 import numpy as np
 import os
 import schedule
+import shutil
 import sys
 import traceback
 
@@ -349,29 +350,35 @@ class NCS(object):
         device.close()
 
 
-def make_video_from_image(path):
+def make_video_from_image(path, size):
     """
     画像ファイルから動画を作成
-    :param path: 画像ファイルがあるディレクトリ
+    :param path: 画像ファイルのパス
+    :param size: 画像ファイルのサイズ
     """
-    images = []
-    size = None
-
     image_path = path + '/*.jpg'
+    name = 'out.mp4'
+    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
+    video = cv2.VideoWriter(name, fourcc, 20.0, size)
+
     for filename in sorted(glob.glob(image_path)):
         img = cv2.imread(filename)
-        height, width, layers = img.shape
-        size = (width, height)
-        images.append(img)
-
-    video_name = 'out.mp4'
-    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-    video = cv2.VideoWriter(video_name, fourcc, 20.0, size)
-
-    for image in images:
-        video.write(image)
+        img = cv2.resize(img, size)
+        video.write(img)
 
     video.release()
+
+    # 画像ファイルの全削除
+    delete_all_files(path)
+
+
+def delete_all_files(path):
+    """
+    指定したフォルダを削除後、再作成
+    :param path: 削除するフォルダ
+    """
+    shutil.rmtree(path)
+    os.mkdir(path)
 
 
 def upload_to_google_drive(video_file):
@@ -415,7 +422,9 @@ def main():
         cap = cv2.VideoCapture(0)
 
         path = 'video_image'  # 画像ファイルのパス
-        schedule.every().day.at("22:00").do(make_video_from_image, path=path)
+        schedule.every().day.at("22:00").do(make_video_from_image,
+                                            path=path,
+                                            size=display_size)
 
         video_file = 'out.mp4'
         schedule.every().day.at("22:01").do(upload_to_google_drive,

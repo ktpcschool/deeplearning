@@ -7,6 +7,10 @@ Copyright(c) 2018 JellyWare Inc.
 License: MIT
 https://github.com/electricbaka/movidius-ncs
 
+Copyright (c) 2013 Daniel Bader (http://dbader.org)
+License: MIT
+https://github.com/dbader/schedule
+
 Copyright(c) 2019 Tatsuro Watanabe
 License: MIT
 https://github.com/ktpcschool/deeplearning

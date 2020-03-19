@@ -427,12 +427,12 @@ def main():
         cap = cv2.VideoCapture(0)
 
         path = os.path.join(base_path, 'video_image')  # 画像ファイルのパス
-        schedule.every().day.at("22:00").do(make_video_from_image,
+        schedule.every().day.at("20:00").do(make_video_from_image,
                                             path=path,
                                             size=display_size)
 
         video_file = 'out.mp4'
-        schedule.every().day.at("22:01").do(upload_to_google_drive,
+        schedule.every().day.at("20:01").do(upload_to_google_drive,
                                             video_file=video_file)
 
         while True:

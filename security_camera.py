@@ -428,12 +428,12 @@ def main():
         cap = cv2.VideoCapture(0)
 
         path = 'video_image'    # 画像ファイルのパス
-        schedule.every().day.at("22:00").do(make_video_from_image,
+        schedule.every().day.at("20:00").do(make_video_from_image,
                                             path=path,
                                             size=display_size)
 
         video_file = 'out.mp4'
-        schedule.every().day.at("22:01").do(upload_to_google_drive,
+        schedule.every().day.at("20:01").do(upload_to_google_drive,
                                             video_file=video_file)
 
         while True:
@@ -459,8 +459,10 @@ def main():
 
             # 現在時刻を表示
             now = datetime.now()
-            now_str = now.strftime('%m%d%H%M%S')
-            cv2.putText(display_image, now_str, (display_size[0] // 2 + 50, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
+            now_sec = now.strftime('%m%d%H%M%S')
+            cv2.putText(display_image, now_sec,
+                        (display_size[0] // 2 + 50, 20),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
             # 表示する
             cv2.imshow('window', display_image)
@@ -469,7 +471,8 @@ def main():
             for filtered_obj in filtered_objs:
                 if 'person' or 'cat' in filtered_obj[0]:
                     # 画像ファイルに書き込む
-                    image_file = now_str + ".jpg"
+                    now_mil = now.strftime('%m%d%H%M%S%f')
+                    image_file = now_mil + ".jpg"
                     f = os.path.join(path, image_file)
                     cv2.imwrite(f, frame)
 

@@ -421,6 +421,7 @@ def main():
         # only keep boxes with probabilities greater than this
         probability_threshold = 0.2
 
+        target_name_list = ['car', 'cat', 'person']
         ncs = NCS(graph_path)
         device = ncs.open_ncs_device()
         graph, fifo_in, fifo_out = ncs.load_graph(device)
@@ -467,9 +468,9 @@ def main():
             # 表示する
             cv2.imshow('window', display_image)
 
-            # personまたはcatが見つかれば画像に書き込む
+            # target_name_list内の物体が見つかれば画像に書き込む
             for filtered_obj in filtered_objs:
-                if 'person' or 'cat' in filtered_obj[0]:
+                if set(filtered_obj[0]) & set(target_name_list):
                     # 画像ファイルに書き込む
                     now_mil = now.strftime('%m%d%H%M%S%f')
                     image_file = now_mil + ".jpg"

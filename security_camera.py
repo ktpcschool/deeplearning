@@ -409,9 +409,9 @@ def main():
         graph_path = 'tiny_yolo_graph'
 
         # 分類するクラス
-        labels = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car',
+        labels = ('aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car',
                   'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike',
-                  'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
+                  'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor')
 
         # Tiny Yolo assumes input images are these dimensions.
         size = (448, 448)
@@ -421,7 +421,7 @@ def main():
         # only keep boxes with probabilities greater than this
         probability_threshold = 0.2
 
-        target_name_list = ['car', 'cat', 'person']
+        target_name_list = ('car', 'cat', 'person')
         ncs = NCS(graph_path)
         device = ncs.open_ncs_device()
         graph, fifo_in, fifo_out = ncs.load_graph(device)
@@ -470,7 +470,7 @@ def main():
 
             # target_name_list内の物体が見つかれば画像に書き込む
             for filtered_obj in filtered_objs:
-                if set(filtered_obj[0]) & set(target_name_list):
+                if filtered_obj[0] in target_name_list:
                     # 画像ファイルに書き込む
                     now_mil = now.strftime('%m%d%H%M%S%f')
                     image_file = now_mil + ".jpg"

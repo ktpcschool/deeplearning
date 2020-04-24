@@ -419,7 +419,7 @@ def main():
         display_size = (400, 300)   # 表示するサイズ
 
         # only keep boxes with probabilities greater than this
-        probability_threshold = 0.3
+        probability_threshold = 0.2
 
         target_name_list = ('car', 'cat', 'person')
         ncs = NCS(graph_path)

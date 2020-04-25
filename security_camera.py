@@ -475,7 +475,7 @@ def main():
                     now_mil = now.strftime('%m%d%H%M%S%f')
                     image_file = now_mil + ".jpg"
                     f = os.path.join(path, image_file)
-                    cv2.imwrite(f, output)
+                    cv2.imwrite(f, display_image)
 
             schedule.run_pending()
 

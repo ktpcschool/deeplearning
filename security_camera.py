@@ -393,7 +393,7 @@ def upload_to_google_drive(video_file):
     gauth = GoogleAuth()
     gauth.CommandLineAuth()
     drive = GoogleDrive(gauth)
-    folder_id = os.environ['FOLDER_ID'] # フォルダーIDは環境変数から取得
+    folder_id = os.environ['FOLDER_ID']  # フォルダーIDは環境変数から取得
     f = drive.CreateFile({'title': video_file,
                           'mimeType': 'video/mp4',
                           'parents': [{'kind': 'drive#fileLink',
@@ -433,7 +433,7 @@ def main():
                                             path=path,
                                             size=display_size)
 
-        video_file = 'out.mp4'
+        video_file = 'video/out.mp4'
         schedule.every().day.at("20:01").do(upload_to_google_drive,
                                             video_file=video_file)
 

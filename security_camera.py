@@ -16,6 +16,7 @@ License: MIT
 https://github.com/ktpcschool/deeplearning
 """
 import cv2
+import environ
 import glob
 import numpy as np
 import os
@@ -393,7 +394,10 @@ def upload_to_google_drive(video_file):
     gauth = GoogleAuth()
     gauth.CommandLineAuth()
     drive = GoogleDrive(gauth)
-    folder_id = os.environ['FOLDER_ID']  # フォルダーIDは環境変数から取得
+    env = environ.Env()
+    folder = os.path.dirname(__file__)
+    env.read_env(os.path.join(folder, '.env'))
+    folder_id = env('FOLDER_ID')
     f = drive.CreateFile({'title': video_file,
                           'mimeType': 'video/mp4',
                           'parents': [{'kind': 'drive#fileLink',

@@ -26,8 +26,8 @@ import traceback
 
 from datetime import datetime
 from mvnc import mvncapi as mvnc
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
 
 
 # Neural Compute Stickのクラス

@@ -7,7 +7,7 @@
 ### word_tree.py
 - ImageNetで扱っている単語の親子関係をたどる (Interface2018年12月号AIひょっこり猫カメラ CQ出版社）
 ### live_detection_sound.py
--Intel® Movidius™ Neural Compute Stickを使用して、猫またはカラスを発見したら画像を保存し鷹の音声を再生
+- Intel® Movidius™ Neural Compute Stickを使用して、猫またはカラスを発見したら画像を保存し鷹の音声を再生
 ### security_camera_v1.py
 - 監視カメラ（旧バージョンTinyYoloモデル）
 - Intel® Movidius™ Neural Compute Stickを使用

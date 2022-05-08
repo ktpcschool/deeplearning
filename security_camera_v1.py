@@ -403,40 +403,39 @@ def upload_to_google_drive(video_file):
 
 
 def main():
+    folder = os.path.dirname(__file__)
+    os.chdir(folder)
+    graph_path = 'tiny_yolo_graph'
+
+    # 分類するクラス
+    labels = ('aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car',
+              'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike',
+              'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor')
+
+    # Tiny Yolo assumes input images are these dimensions.
+    size = (448, 448)
+
+    display_size = (400, 300)   # 表示するサイズ
+
+    # only keep boxes with probabilities greater than this
+    probability_threshold = 0.25
+
+    target_name_list = ('car', 'cat', 'person')
+    ncs = NCS(graph_path)
+    device = ncs.open_ncs_device()
+    graph, fifo_in, fifo_out = ncs.load_graph(device)
+
+    cap = cv2.VideoCapture(0)
+
+    path = 'video_image'    # 画像ファイルのパス
+    schedule.every().day.at("20:00").do(make_video_from_image,
+                                        path=path,
+                                        size=display_size)
+
+    video_file = 'out.mp4'
+    schedule.every().day.at("20:01").do(upload_to_google_drive,
+                                        video_file=video_file)
     try:
-        folder = os.path.dirname(__file__)
-        os.chdir(folder)
-        graph_path = 'tiny_yolo_graph'
-
-        # 分類するクラス
-        labels = ('aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car',
-                  'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike',
-                  'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor')
-
-        # Tiny Yolo assumes input images are these dimensions.
-        size = (448, 448)
-
-        display_size = (400, 300)   # 表示するサイズ
-
-        # only keep boxes with probabilities greater than this
-        probability_threshold = 0.25
-
-        target_name_list = ('car', 'cat', 'person')
-        ncs = NCS(graph_path)
-        device = ncs.open_ncs_device()
-        graph, fifo_in, fifo_out = ncs.load_graph(device)
-
-        cap = cv2.VideoCapture(0)
-
-        path = 'video_image'    # 画像ファイルのパス
-        schedule.every().day.at("20:00").do(make_video_from_image,
-                                            path=path,
-                                            size=display_size)
-
-        video_file = 'out.mp4'
-        schedule.every().day.at("20:01").do(upload_to_google_drive,
-                                            video_file=video_file)
-
         while True:
             ok, frame = cap.read()
             if not ok:
@@ -446,9 +445,8 @@ def main():
             if cv2.waitKey(5) & 0xff == 27:
                 break
 
-            img = frame
-            display_image = cv2.resize(img, display_size)
-            img = cv2.resize(img, size, cv2.INTER_LINEAR)
+            display_image = cv2.resize(frame, display_size)
+            img = cv2.resize(frame, size, cv2.INTER_LINEAR)
 
             img = ncs.load_image(img)
             output = ncs.infer_image(fifo_in, fifo_out, graph, img.astype(np.float32))
@@ -479,7 +477,7 @@ def main():
 
             schedule.run_pending()
 
-    except Exception as ex:
+    except Exception:
         # エラーの情報をsysモジュールから取得
         info = sys.exc_info()
 

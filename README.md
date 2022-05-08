@@ -14,6 +14,7 @@ Intel® Movidius™ Neural Compute Stickを使用して、猫またはカラス�
 Intel® Movidius™ Neural Compute Stickを使用
 ### security_camera_v2.py
 監視カメラ（OpenVINO対応顔認識）
+
 [Neural Compute StickとOpenVINOでゼロから学ぶディープラーニング推論](https://jellyware.jp/openvino/#04)を参考にしました。
 
 Intel® Movidius™ Neural Compute Stickを使用

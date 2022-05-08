@@ -13,4 +13,5 @@
 ### security_camera_v2.py
  監視カメラ（OpenVINO対応顔認識）
  [Neural Compute StickとOpenVINOでゼロから学ぶディープラーニング推論](https://jellyware.jp/openvino/#04)を参考にしました。
+ 
  ラズベリーパイのバージョン: raspbian_full-2019-04-09

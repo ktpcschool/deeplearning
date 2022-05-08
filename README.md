@@ -12,6 +12,8 @@ Intel® Movidius™ Neural Compute Stickを使用して、猫またはカラス�
 監視カメラ（旧バージョンTinyYolo）
 
 Intel® Movidius™ Neural Compute Stickを使用
+
+2022年の時点ではこのコードは利用困難です。
 ### security_camera_v2.py
 監視カメラ（OpenVINO対応顔認識）
 

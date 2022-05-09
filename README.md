@@ -13,7 +13,7 @@
 - Intel® Movidius™ Neural Compute Stickを使用
 - 2022年の時点ではこのコードは利用困難です。
 ### security_camera_v2.py
-- 監視カメラ（OpenVINO対応顔認識モデル）
+- 監視カメラ（OpenVINO対応人認識モデル）
 - [Neural Compute StickとOpenVINOでゼロから学ぶディープラーニング推論](https://jellyware.jp/openvino/#04)を参考にしました。
 - Intel® Movidius™ Neural Compute Stickを使用
 - Raspberry PiのOSのバージョン: [raspbian_full-2019-04-09](http://ftp.jaist.ac.jp/pub/raspberrypi/raspbian_full/images/raspbian_full-2019-04-09/)

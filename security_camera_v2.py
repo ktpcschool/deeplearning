@@ -36,26 +36,41 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(lineno)s 
 logger = logging.getLogger(__name__)
 
 
-def make_video_from_image(path, size):
+def make_video_from_image(path, fps, size):
     """
     画像ファイルから動画を作成
     :param path: 画像ファイルのパス
+    :param fps: フレームレート
     :param size: 画像ファイルのサイズ
     """
     image_path = path + '/*.jpg'
-    name = 'out.mp4'
-    fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
-    video = cv2.VideoWriter(name, fourcc, 20.0, size)
+    name = 'out.avi'
+    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    video = cv2.VideoWriter(name, fourcc, fps, size)
 
     for filename in sorted(glob.glob(image_path)):
         img = cv2.imread(filename)
-        img = cv2.resize(img, size)
         video.write(img)
 
     video.release()
 
-    # 画像ファイルの全削除
-    delete_all_files(path)
+
+def upload_to_google_drive(file, mime_type):
+    """
+    googleドライブに動画ファイルをアップロードする
+    :param file: アップロードするファイル
+    :param mime_type: アップロードするファイルのMIMEタイプ
+    """
+    gauth = GoogleAuth()
+    gauth.CommandLineAuth()
+    drive = GoogleDrive(gauth)
+    folder_id = os.environ['FOLDER_ID']  # フォルダーIDは環境変数から取得
+    f = drive.CreateFile({'title': file,
+                          'mimeType': mime_type,
+                          'parents': [{'kind': 'drive#fileLink',
+                                       'id': folder_id}]})
+    f.SetContentFile(file)
+    f.Upload()
 
 
 def delete_all_files(path):
@@ -67,24 +82,9 @@ def delete_all_files(path):
     os.mkdir(path)
 
 
-def upload_to_google_drive(video_file):
-    """
-    googleドライブに動画ファイルをアップロードする
-    :param video_file: アップロードする動画ファイル
-    """
-    gauth = GoogleAuth()
-    gauth.CommandLineAuth()
-    drive = GoogleDrive(gauth)
-    folder_id = os.environ['FOLDER_ID']  # フォルダーIDは環境変数から取得
-    f = drive.CreateFile({'title': video_file,
-                          'mimeType': 'video/mp4',
-                          'parents': [{'kind': 'drive#fileLink',
-                                       'id': folder_id}]})
-    f.SetContentFile(video_file)
-    f.Upload()
-
-
 def main():
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
     # モジュール読み込み
     sys.path.append('/opt/intel/openvino/python/python3.5/armv7l')
     from openvino.inference_engine import IENetwork, IEPlugin
@@ -93,27 +93,33 @@ def main():
     plugin = IEPlugin(device="MYRIAD")
 
     # モデルの読み込み
-    model_path = '/home/iuy2dwir/build/face-detection-retail-0004.xml'
-    weight_path = '/home/iuy2dwir/build/face-detection-retail-0004.bin'
+    model_path = 'models/face-detection-retail-0004.xml'
+    weight_path = 'models/face-detection-retail-0004.bin'
     net = IENetwork(model=model_path, weights=weight_path)
     exec_net = plugin.load(network=net)
 
     # カメラ準備
     cap = cv2.VideoCapture(0)
+    fps = cap.get(cv2.CAP_PROP_FPS)  # FPS
 
     try:
         probability_threshold = 0.5  # バウンディングボックス表示の閾値
         display_size = (400, 300)  # 表示するサイズ
         model_size = (300, 300)  # face-detection-retail-0004が要求するサイズ
         transpose = (2, 0, 1)  # HWC → CHW（モデルによって変わる）
-        image_path = os.path.join(BASE_DIR, 'video_image')  # 画像ファイルのパス
+        image_path = 'video_image'  # 画像ファイルのパス
         schedule.every().day.at("20:00").do(make_video_from_image,
                                             path=image_path,
+                                            fps=fps,
                                             size=model_size)
 
-        video_file = 'out.mp4'
+        video_file = 'out.avi'
+        mime_type = 'video/x-msvideo'
         schedule.every().day.at("20:01").do(upload_to_google_drive,
-                                            video_file=video_file)
+                                            video_file=video_file,
+                                            mime_type=mime_type)
+        schedule.every().day.at("20:02").do(delete_all_files,
+                                            path=image_path)
 
         # メインループ
         while True:

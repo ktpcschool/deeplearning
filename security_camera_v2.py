@@ -117,7 +117,7 @@ def main():
         video_file = 'out.avi'
         mime_type = 'video/x-msvideo'
         schedule.every().day.at("20:01").do(upload_to_google_drive,
-                                            video_file=video_file,
+                                            file=video_file,
                                             mime_type=mime_type)
         schedule.every().day.at("20:02").do(delete_all_files,
                                             path=image_path)

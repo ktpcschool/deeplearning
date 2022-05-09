@@ -93,8 +93,8 @@ def main():
     plugin = IEPlugin(device="MYRIAD")
 
     # モデルの読み込み
-    model_path = 'models/person-detection-retail-0002.xml'
-    weight_path = 'models/person-detection-retail-0002.bin'
+    model_path = 'models/person-detection-retail-0013.xml'
+    weight_path = 'models/person-detection-retail-0013.bin'
     net = IENetwork(model=model_path, weights=weight_path)
     exec_net = plugin.load(network=net)
 
@@ -106,7 +106,7 @@ def main():
     try:
         probability_threshold = 0.5  # バウンディングボックス表示の閾値
         display_size = (400, 300)  # 表示するサイズ
-        model_size = (992, 544)  # モデルが要求するサイズ
+        model_size = (544, 320)  # モデルが要求するサイズ
         transpose = (2, 0, 1)  # HWC → CHW（モデルによって変わる）
         image_path = 'video_image'  # 画像ファイルのパス
         schedule.every().day.at("20:00").do(make_video_from_image,

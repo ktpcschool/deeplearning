@@ -111,7 +111,7 @@ def main():
     schedule.every().day.at("20:00").do(make_video_from_image,
                                         path=image_path,
                                         fps=fps,
-                                        size=model_size)
+                                        size=display_size)
 
     video_file = 'out.avi'
     mime_type = 'video/x-msvideo'

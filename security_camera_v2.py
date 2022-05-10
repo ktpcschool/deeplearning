@@ -103,25 +103,25 @@ def main():
     fps = cap.get(cv2.CAP_PROP_FPS)  # FPS
     # print(fps)
 
+    probability_threshold = 0.5  # バウンディングボックス表示の閾値
+    display_size = (400, 300)  # 表示するサイズ
+    model_size = (544, 320)  # モデルが要求するサイズ
+    transpose = (2, 0, 1)  # HWC → CHW（モデルによって変わる）
+    image_path = 'video_image'  # 画像ファイルのパス
+    schedule.every().day.at("20:00").do(make_video_from_image,
+                                        path=image_path,
+                                        fps=fps,
+                                        size=model_size)
+
+    video_file = 'out.avi'
+    mime_type = 'video/x-msvideo'
+    schedule.every().day.at("20:01").do(upload_to_google_drive,
+                                        file=video_file,
+                                        mime_type=mime_type)
+    schedule.every().day.at("20:02").do(delete_all_files,
+                                        path=image_path)
+
     try:
-        probability_threshold = 0.5  # バウンディングボックス表示の閾値
-        display_size = (400, 300)  # 表示するサイズ
-        model_size = (544, 320)  # モデルが要求するサイズ
-        transpose = (2, 0, 1)  # HWC → CHW（モデルによって変わる）
-        image_path = 'video_image'  # 画像ファイルのパス
-        schedule.every().day.at("20:00").do(make_video_from_image,
-                                            path=image_path,
-                                            fps=fps,
-                                            size=model_size)
-
-        video_file = 'out.avi'
-        mime_type = 'video/x-msvideo'
-        schedule.every().day.at("20:01").do(upload_to_google_drive,
-                                            file=video_file,
-                                            mime_type=mime_type)
-        schedule.every().day.at("20:02").do(delete_all_files,
-                                            path=image_path)
-
         # メインループ
         while True:
             ok, frame = cap.read()

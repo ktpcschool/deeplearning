@@ -154,7 +154,7 @@ def main():
                         (display_size[0] // 2 + 50, 20),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))
 
-            # 検出されたすべての顔領域に対して１つずつ処理
+            # 検出されたすべての領域に対して１つずつ処理
             for detection in detections:
                 confidence = float(detection[2])
 

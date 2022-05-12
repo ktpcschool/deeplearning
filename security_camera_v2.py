@@ -108,17 +108,17 @@ def main():
     model_size = (544, 320)  # モデルが要求するサイズ
     transpose = (2, 0, 1)  # HWC → CHW（モデルによって変わる）
     image_path = 'video_image'  # 画像ファイルのパス
-    schedule.every().day.at("20:00").do(make_video_from_image,
+    schedule.every().day.at("19:40").do(make_video_from_image,
                                         path=image_path,
                                         fps=fps,
                                         size=display_size)
 
     video_file = 'out.avi'
     mime_type = 'video/x-msvideo'
-    schedule.every().day.at("20:01").do(upload_to_google_drive,
+    schedule.every().day.at("19:50").do(upload_to_google_drive,
                                         file=video_file,
                                         mime_type=mime_type)
-    schedule.every().day.at("20:02").do(delete_all_files,
+    schedule.every().day.at("20:00").do(delete_all_files,
                                         path=image_path)
 
     try:

@@ -44,13 +44,20 @@ def make_video_from_image(path, fps, size):
     :param size: 画像ファイルのサイズ
     """
     image_path = path + '/*.jpg'
-    name = 'out.avi'
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
+    count = 1
+    name = 'out{}.avi'.format(count)
     video = cv2.VideoWriter(name, fourcc, fps, size)
 
-    for filename in sorted(glob.glob(image_path)):
+    for i, filename in enumerate(sorted(glob.glob(image_path))):
         img = cv2.imread(filename)
         video.write(img)
+
+        # 画像ファイル3000枚ごとにビデオ作成
+        if i > 0 and i % 3000 == 0:
+            count += 1
+            name = 'out{}.avi'.format(count)
+            video = cv2.VideoWriter(name, fourcc, fps, size)
 
     video.release()
 
@@ -71,6 +78,16 @@ def upload_to_google_drive(file, mime_type):
                                        'id': folder_id}]})
     f.SetContentFile(file)
     f.Upload()
+
+
+def upload_files_to_google_drive(path, mime_type):
+    """
+    指定のファイルをgoogleドライブにアップロードする
+    :param path: アップロードするファイルのパス
+    :param mime_type: アップロードするファイルのMIMEタイプ
+    """
+    for filename in glob.glob(path):
+        upload_to_google_drive(filename, mime_type)
 
 
 def delete_all_files(path):
@@ -113,10 +130,10 @@ def main():
                                         fps=fps,
                                         size=display_size)
 
-    video_file = 'out.avi'
+    video_path = 'out*.avi'
     mime_type = 'video/x-msvideo'
-    schedule.every().day.at("19:50").do(upload_to_google_drive,
-                                        file=video_file,
+    schedule.every().day.at("19:50").do(upload_files_to_google_drive,
+                                        path=video_path,
                                         mime_type=mime_type)
     schedule.every().day.at("20:00").do(delete_all_files,
                                         path=image_path)

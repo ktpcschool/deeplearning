@@ -36,17 +36,17 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(lineno)s 
 logger = logging.getLogger(__name__)
 
 
-def make_video_from_image(path, fps, size):
+def make_video_from_image(image_path, video_dir, fps, size):
     """
     画像ファイルから動画を作成
-    :param path: 画像ファイルのパス
+    :param image_path: 画像ファイルのパス
+    :param video_dir: 動画ファイルのパス
     :param fps: フレームレート
     :param size: 画像ファイルのサイズ
     """
-    image_path = path + '/*.jpg'
     fourcc = cv2.VideoWriter_fourcc(*'MJPG')
     count = 1
-    name = 'out{}.avi'.format(count)
+    name = '{}/out{}.avi'.format(video_dir, count)
     video = cv2.VideoWriter(name, fourcc, fps, size)
 
     for i, filename in enumerate(sorted(glob.glob(image_path))):
@@ -56,7 +56,7 @@ def make_video_from_image(path, fps, size):
         # 画像ファイル3000枚ごとにビデオ作成
         if i > 0 and i % 3000 == 0:
             count += 1
-            name = 'out{}.avi'.format(count)
+            name = '{}/out{}.avi'.format(video_dir, count)
             video = cv2.VideoWriter(name, fourcc, fps, size)
 
     video.release()
@@ -64,7 +64,7 @@ def make_video_from_image(path, fps, size):
 
 def upload_to_google_drive(file, mime_type):
     """
-    googleドライブに動画ファイルをアップロードする
+    googleドライブにファイルをアップロードする
     :param file: アップロードするファイル
     :param mime_type: アップロードするファイルのMIMEタイプ
     """
@@ -90,13 +90,13 @@ def upload_files_to_google_drive(path, mime_type):
         upload_to_google_drive(filename, mime_type)
 
 
-def delete_all_files(path):
+def delete_files(path):
     """
-    指定したフォルダを削除後、再作成
-    :param path: 削除するフォルダ
+    指定したpathのファイルを削除
+    :param path: 削除するファイルのパス
     """
-    shutil.rmtree(path)
-    os.mkdir(path)
+    for file in glob.glob(path):
+        os.remove(file)
 
 
 def main():
@@ -124,19 +124,23 @@ def main():
     display_size = (400, 300)  # 表示するサイズ
     model_size = (544, 320)  # モデルが要求するサイズ
     transpose = (2, 0, 1)  # HWC → CHW（モデルによって変わる）
-    image_path = 'video_image'  # 画像ファイルのパス
+    image_path = 'video_image/*.jpg'  # 画像ファイルのパス
+    video_dir = 'videos'  # 動画ファイルがあるディレクトリ
+    video_path = '{}/out*.avi'.format(video_dir)  # 動画ファイルのパス
+    mime_type = 'video/x-msvideo'
+
     schedule.every().day.at("19:40").do(make_video_from_image,
-                                        path=image_path,
+                                        image_path=image_path,
+                                        video_dir=video_dir,
                                         fps=fps,
                                         size=display_size)
-
-    video_path = 'out*.avi'
-    mime_type = 'video/x-msvideo'
     schedule.every().day.at("19:50").do(upload_files_to_google_drive,
                                         path=video_path,
                                         mime_type=mime_type)
-    schedule.every().day.at("20:00").do(delete_all_files,
+    schedule.every().day.at("20:00").do(delete_files,
                                         path=image_path)
+    schedule.every().day.at("20:10").do(delete_files,
+                                        path=video_path)
 
     try:
         # メインループ

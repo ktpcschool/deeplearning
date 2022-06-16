@@ -124,7 +124,8 @@ def main():
     display_size = (400, 300)  # 表示するサイズ
     model_size = (544, 320)  # モデルが要求するサイズ
     transpose = (2, 0, 1)  # HWC → CHW（モデルによって変わる）
-    image_path = 'video_image/*.jpg'  # 画像ファイルのパス
+    image_dir = 'video_image'
+    image_path = '{}/*.jpg'.format(image_dir)  # 画像ファイルのパス
     video_dir = 'videos'  # 動画ファイルがあるディレクトリ
     video_path = '{}/out*.avi'.format(video_dir)  # 動画ファイルのパス
     mime_type = 'video/x-msvideo'
@@ -193,7 +194,7 @@ def main():
                     # 画像ファイルに書き込む
                     now_mil = now.strftime('%m%d%H%M%S%f')
                     image_file = now_mil + ".jpg"
-                    f = os.path.join(image_path, image_file)
+                    f = os.path.join(image_dir, image_file)
                     cv2.imwrite(f, display_image)
 
             # 画像表示

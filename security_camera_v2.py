@@ -130,17 +130,17 @@ def main():
     video_path = '{}/out*.avi'.format(video_dir)  # 動画ファイルのパス
     mime_type = 'video/x-msvideo'
 
-    schedule.every().day.at("19:00").do(make_video_from_image,
+    schedule.every().day.at("19:50").do(make_video_from_image,
                                         image_path=image_path,
                                         video_dir=video_dir,
                                         fps=fps,
                                         size=display_size)
-    schedule.every().day.at("19:30").do(upload_files_to_google_drive,
+    schedule.every().day.at("20:00").do(upload_files_to_google_drive,
                                         path=video_path,
                                         mime_type=mime_type)
-    schedule.every().day.at("20:00").do(delete_files,
+    schedule.every().day.at("20:30").do(delete_files,
                                         path=image_path)
-    schedule.every().day.at("20:10").do(delete_files,
+    schedule.every().day.at("20:40").do(delete_files,
                                         path=video_path)
 
     try:
